@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>洛</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- 用户头部 -->
+        <div class="user-header">
+            <div class="avatar-container" id="avatarBtn">
+                <span id="avatarEmoji">🐱</span>
+            </div>
+            <div class="username" id="usernameBtn">洛</div>
+        </div>
+
+        <!-- 吃饭页 -->
+        <div class="content active" id="eatPage">
+            <!-- 热量卡片 -->
+            <div class="calorie-card">
+                <div class="calorie-item">
+                    <div class="calorie-label">🍚 今日摄入</div>
+                    <div class="calorie-value intake" id="intakeVal">0</div>
+                    <div style="font-size:12px;color:#9E9E9E;">大卡</div>
+                </div>
+                <div class="calorie-item">
+                    <div class="calorie-label">🏃 今日消耗</div>
+                    <input type="number" class="calorie-input" id="burnInput" placeholder="0" min="0">
+                    <div style="font-size:12px;color:#9E9E9E;">大卡</div>
+                </div>
+                <div class="calorie-item">
+                    <div class="calorie-label">⚖️ 热量缺口</div>
+                    <div class="calorie-value gap" id="gapVal">0</div>
+                    <div class="gap-status" id="gapStatus"></div>
+                </div>
+            </div>
+
+            <!-- 日期栏 -->
+            <div class="date-bar">
+                <button class="date-btn">
+                    <span>📅</span>
+                    <span id="currentDate">今天</span>
+                    <input type="date" class="date-input" id="datePicker">
+                </button>
+                <button class="add-btn" id="addRecordBtn">+</button>
+            </div>
+
+            <!-- 记录列表 -->
+            <div class="card">
+                <div id="recordList">
+                    <div class="empty-tip">还没有记录，点击+添加今天的饮食吧～</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 体重页 -->
+        <div class="content" id="weightPage">
+            <div class="card">
+                <div class="weight-progress">
+                    <div class="progress-ring">
+                        <svg>
+                            <circle class="bg" cx="90" cy="90" r="80"></circle>
+                            <circle class="progress" id="progressCircle" cx="90" cy="90" r="80"></circle>
+                        </svg>
+                        <div class="progress-text">
+                            <div class="progress-lost" id="lostWeight">0</div>
+                            <div class="progress-label">已减重 kg</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="weight-inputs">
+                    <div class="weight-input-group">
+                        <label>初始体重 (kg)</label>
+                        <input type="number" id="startWeight" step="0.1" value="60">
+                    </div>
+                    <div class="weight-input-group">
+                        <label>目标体重 (kg)</label>
+                        <input type="number" id="targetWeight" step="0.1" value="55">
+                    </div>
+                </div>
+
+                <button class="update-weight-btn" id="updateWeightBtn">更新当前体重</button>
+            </div>
+
+            <div class="card">
+                <div class="bmi-section">
+                    <div class="bmi-title">📏 BMI 计算</div>
+                    <div class="bmi-input-row">
+                        <input type="number" id="heightInput" placeholder="身高 (cm)" min="50" max="250">
+                        <input type="number" id="currentWeightInput" placeholder="当前体重 (kg)" step="0.1">
+                    </div>
+                    <div class="bmi-result normal" id="bmiResult">
+                        请输入身高体重
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="diet-recommend" id="dietRecommend">
+                    <div class="diet-title">🥗 饮食建议</div>
+                    <div class="diet-tip">请先输入身高体重计算BMI，获取专属饮食建议。</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 统计页 -->
+        <div class="content" id="statPage">
+            <div class="card">
+                <div class="bmi-title">🥧 今日热量分布</div>
+                <div class="chart-container">
+                    <canvas id="pieChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="bmi-title">📈 近7天体重变化</div>
+                <div class="chart-container">
+                    <canvas id="weightChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部导航 -->
+        <div class="bottom-nav">
+            <button class="nav-item active" data-page="eatPage">
+                <span class="nav-icon">🍚</span>
+                <span>吃饭</span>
+            </button>
+            <button class="nav-item" data-page="weightPage">
+                <span class="nav-icon">⚖️</span>
+                <span>体重</span>
+            </button>
+            <button class="nav-item" data-page="statPage">
+                <span class="nav-icon">📊</span>
+                <span>统计</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- 添加记录弹窗 -->
+    <div class="modal" id="addRecordModal">
+        <div class="modal-content">
+            <div class="modal-title">添加饮食记录</div>
+            <div class="form-group">
+                <label>选择食物类型</label>
+                <div class="emoji-selector" id="emojiSelector">
+                    <div class="emoji-option selected" data-emoji="🍚">🍚</div>
+                    <div class="emoji-option" data-emoji="🍜">🍜</div>
+                    <div class="emoji-option" data-emoji="🍔">🍔</div>
+                    <div class="emoji-option" data-emoji="🥗">🥗</div>
+                    <div class="emoji-option" data-emoji="🍎">🍎</div>
+                    <div class="emoji-option" data-emoji="🍰">🍰</div>
+                    <div class="emoji-option" data-emoji="🥛">🥛</div>
+                    <div class="emoji-option" data-emoji="🍗">🍗</div>
+                    <div class="emoji-option" data-emoji="🥟">🥟</div>
+                    <div class="emoji-option" data-emoji="🍦">🍦</div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>食物名称</label>
+                <input type="text" id="foodName" placeholder="比如：米饭、鸡蛋">
+            </div>
+            <div class="form-group">
+                <label>热量 (大卡)</label>
+                <input type="number" id="foodCal" placeholder="输入热量" min="0">
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn cancel" id="cancelAddBtn">取消</button>
+                <button class="modal-btn confirm" id="confirmAddBtn">添加</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 更新体重弹窗 -->
+    <div class="modal" id="weightModal">
+        <div class="modal-content">
+            <div class="modal-title">更新当前体重</div>
+            <div class="form-group">
+                <label>当前体重 (kg)</label>
+                <input type="number" id="newWeight" step="0.1" placeholder="输入当前体重">
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn cancel" id="cancelWeightBtn">取消</button>
+                <button class="modal-btn confirm" id="confirmWeightBtn">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 修改用户信息弹窗 -->
+    <div class="modal" id="userModal">
+        <div class="modal-content">
+            <div class="modal-title">修改个人信息</div>
+            <div class="form-group">
+                <label>选择头像</label>
+                <div class="avatar-options" id="avatarOptions">
+                    <div class="avatar-option selected" data-avatar="🐱">🐱</div>
+                    <div class="avatar-option" data-avatar="🐶">🐶</div>
+                    <div class="avatar-option" data-avatar="🐰">🐰</div>
+                    <div class="avatar-option" data-avatar="🐻">🐻</div>
+                    <div class="avatar-option" data-avatar="🐼">🐼</div>
+                    <div class="avatar-option" data-avatar="🦊">🦊</div>
+                    <div class="avatar-option" data-avatar="🐨">🐨</div>
+                    <div class="avatar-option" data-avatar="🐯">🐯</div>
+                </div>
+                <button class="upload-avatar-btn" id="uploadAvatarBtn">📷 从相册选择图片</button>
+                <input type="file" id="avatarInput" accept="image/*">
+            </div>
+            <div class="form-group">
+                <label>昵称</label>
+                <input type="text" id="newUsername" placeholder="输入昵称">
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn cancel" id="cancelUserBtn">取消</button>
+                <button class="modal-btn confirm" id="confirmUserBtn">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
